@@ -6,7 +6,7 @@ from components.student_chat import student_chat_page
 from utils.database import get_chat_history
 
 
-st.set_page_config(page_title="ClassDocBot", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="LearnBot", layout="wide", initial_sidebar_state="collapsed", page_icon="favicon.png")
 
 # Initialize DB tables on startup
 # init_db()
