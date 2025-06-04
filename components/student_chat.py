@@ -40,15 +40,15 @@ def student_chat_page(user):
         
         # Display user message instantly
         st.chat_message("user").markdown(user_input)
-        st.session_state.messages.append({"role": "user", "content": user_input})
         
         with st.chat_message("assistant"):
             with st.spinner("🧠 Generating response..."):
                 messages = st.session_state.messages
                 context_chunks = get_relevant_chunks(user_input, user["class"], messages)
                 context_text = "\n".join(chunk["chunk_text"] for chunk in context_chunks)
-                answer = ask_llm(user_input, context_text)  # ⚡️ Can replace with streaming if needed
+                answer = ask_llm(user_input, context_text, messages)  # ⚡️ Can replace with streaming if needed
                 st.markdown(answer)
+        st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "assistant", "content": answer})
 
         # answer = ask_llm(user_input, context_text)
