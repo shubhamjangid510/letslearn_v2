@@ -4,6 +4,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import numpy as np
 from pgvector import Vector
+from utils.llm import reframe_question_with_memory
 
 
 from pgvector.psycopg2 import register_vector
@@ -13,7 +14,11 @@ load_dotenv()
 
 client = OpenAI()
 
-def get_relevant_chunks(query, class_name):
+def get_relevant_chunks(query, class_name, messages=None):
+    
+    if messages:
+        query = reframe_question_with_memory(messages, query)
+        
     emb = client.embeddings.create(input=query, model="text-embedding-ada-002").data[0].embedding
     emb_vector = Vector(emb) 
     with get_connection() as conn:

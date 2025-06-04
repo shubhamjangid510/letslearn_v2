@@ -44,7 +44,8 @@ def student_chat_page(user):
         
         with st.chat_message("assistant"):
             with st.spinner("🧠 Generating response..."):
-                context_chunks = get_relevant_chunks(user_input, user["class"])
+                messages = st.session_state.messages
+                context_chunks = get_relevant_chunks(user_input, user["class"], messages)
                 context_text = "\n".join(chunk["chunk_text"] for chunk in context_chunks)
                 answer = ask_llm(user_input, context_text)  # ⚡️ Can replace with streaming if needed
                 st.markdown(answer)
