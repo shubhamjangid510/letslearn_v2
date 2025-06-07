@@ -9,35 +9,75 @@ load_dotenv()
 
 client = OpenAI()
 
+# def ask_llm(question, context, memory=[]):
+#     # Get current date and day
+#     now = datetime.now()
+#     today_str = now.strftime("%A, %d %B %Y")
+
+#        # Use last 10 messages (5 pairs) for chat history memory
+#     chat_history = [m for m in memory if m['role'] in ['user', 'assistant']][-10:]
+#     memory_prompt = ""
+#     for i in range(0, len(chat_history), 2):
+#         if i + 1 < len(chat_history):
+#             user_msg = chat_history[i]['content']
+#             assistant_msg = chat_history[i + 1]['content']
+#             memory_prompt += f"\nQ{i//2+1}: {user_msg}\nA{i//2+1}: {assistant_msg}"
+#         else:
+#             memory_prompt += f"\nQ{i//2+1}: {chat_history[i]['content']}\nA{i//2+1}: [No response]"
+    
+#     print(f"Memory Creatd->{memory_prompt}")
+
+#     system_prompt = f"""
+#         You are LearnBot, an assistant that answers strictly based on the provided document context and the chat history memory.
+#         Your name is LearnBot.
+
+#         If a user greets you, respond with your name and optionally mention today's date ({today_str}).
+
+#         You are not allowed to use any external or prior knowledge.
+#         If the answer is not found in the provided content or the memory, respond:
+#         "I'm sorry, I couldn't find that information. Can you please rephrase the question or ask a different question."
+
+#         Do not speculate, assume, or generate filler content.
+#     """
+
+#     user_prompt = f"Chat History:\n{memory_prompt}\n\nDocument Context:\n{context}\n\nQuestion: {question}\nAnswer:"
+
+#     completion = client.chat.completions.create(
+#         model="gpt-4",
+#         messages=[
+#             {"role": "system", "content": system_prompt.strip()},
+#             {"role": "user", "content": user_prompt.strip()}
+#         ]
+#     )
+#     return completion.choices[0].message.content.strip()
+
+
+
 def ask_llm(question, context, memory=[]):
-    # Get current date and day
     now = datetime.now()
     today_str = now.strftime("%A, %d %B %Y")
 
-       # Use last 10 messages (5 pairs) for chat history memory
+    # Last 5 chat pairs (10 messages)
     chat_history = [m for m in memory if m['role'] in ['user', 'assistant']][-10:]
     memory_prompt = ""
     for i in range(0, len(chat_history), 2):
         if i + 1 < len(chat_history):
-            user_msg = chat_history[i]['content']
-            assistant_msg = chat_history[i + 1]['content']
-            memory_prompt += f"\nQ{i//2+1}: {user_msg}\nA{i//2+1}: {assistant_msg}"
+            memory_prompt += f"\nQ{i//2+1}: {chat_history[i]['content']}\nA{i//2+1}: {chat_history[i + 1]['content']}"
         else:
             memory_prompt += f"\nQ{i//2+1}: {chat_history[i]['content']}\nA{i//2+1}: [No response]"
-    
-    print(f"Memory Creatd->{memory_prompt}")
 
     system_prompt = f"""
-        You are LearnBot, an assistant that answers strictly based on the provided document context and the chat history memory.
-        Your name is LearnBot.
+    You are LearnBot, an assistant that answers strictly based on the provided document context and the chat history memory.
+    Your name is LearnBot.
 
-        If a user greets you, respond with your name and optionally mention today's date ({today_str}).
+    Today is {today_str}.
 
-        You are not allowed to use any external or prior knowledge.
-        If the answer is not found in the provided content or the memory, respond:
-        "I'm sorry, I couldn't find that information. Can you please rephrase the question or ask a different question."
-
-        Do not speculate, assume, or generate filler content.
+    Rules:
+    - You must only answer based on the provided document chunks and memory.
+    - If information is not found, say:
+      "I'm sorry, I couldn't find that information. Can you please rephrase the question or ask a different question?"
+    - If you reference a document chunk, mention the page number and provide the exact source link (from the context).
+    - Never invent information. Do not hallucinate, speculate, or generate unrelated content.
     """
 
     user_prompt = f"Chat History:\n{memory_prompt}\n\nDocument Context:\n{context}\n\nQuestion: {question}\nAnswer:"
@@ -49,9 +89,8 @@ def ask_llm(question, context, memory=[]):
             {"role": "user", "content": user_prompt.strip()}
         ]
     )
+
     return completion.choices[0].message.content.strip()
-
-
 
 
 

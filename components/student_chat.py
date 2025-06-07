@@ -45,7 +45,11 @@ def student_chat_page(user):
             with st.spinner("🧠 Generating response..."):
                 messages = st.session_state.messages
                 context_chunks = get_relevant_chunks(user_input, user["class"], messages)
-                context_text = "\n".join(chunk["chunk_text"] for chunk in context_chunks)
+                # context_text = "\n".join(chunk["chunk_text"] for chunk in context_chunks)
+                context_text = "\n\n".join([
+                f"{chunk['chunk_text']}\n(Source: Page {chunk['page_number']}, {chunk['pdf_url']})"
+                for chunk in context_chunks
+            ])
                 answer = ask_llm(user_input, context_text, messages)  # ⚡️ Can replace with streaming if needed
                 st.markdown(answer)
         st.session_state.messages.append({"role": "user", "content": user_input})
