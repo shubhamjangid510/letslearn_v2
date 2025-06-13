@@ -71,7 +71,7 @@ else:
 
     with st.sidebar:
 
-        st.image("logo_png.png", use_column_width=True)
+        st.image("logo_png.png")
 
         st.markdown(f"### {user['name']}")
         if st.button("🔓 Logout"):

@@ -1,5 +1,6 @@
 # utils/llm.py
 from openai import OpenAI
+import os 
 
 from datetime import datetime
 
@@ -76,14 +77,14 @@ def ask_llm(question, context, memory=[]):
     - You must only answer based on the provided document chunks and memory.
     - If information is not found, say:
       "I'm sorry, I couldn't find that information. Can you please rephrase the question or ask a different question?"
-    - If you reference a document chunk, mention the page number and provide the exact source link (from the context).
+    - When referencing a document chunk, always format the page number as a Markdown link: [Page X](URL). For example, say "See [Page 5](https://example.com/page5)".
     - Never invent information. Do not hallucinate, speculate, or generate unrelated content.
     """
 
     user_prompt = f"Chat History:\n{memory_prompt}\n\nDocument Context:\n{context}\n\nQuestion: {question}\nAnswer:"
 
     completion = client.chat.completions.create(
-        model="gpt-4",
+        model=os.environ["MODEL"],
         messages=[
             {"role": "system", "content": system_prompt.strip()},
             {"role": "user", "content": user_prompt.strip()}
@@ -122,7 +123,7 @@ Current question:
 Rewritten question (self-contained):"""
 
     completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=os.environ["MODEL"],
         messages=[
             {"role": "system", "content": system_prompt.strip()},
             {"role": "user", "content": user_prompt.strip()}
