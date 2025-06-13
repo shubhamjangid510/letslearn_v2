@@ -85,6 +85,8 @@ else:
 
                 st.session_state.chat_id = None
                 st.session_state.messages=[]
+                st.session_state.welcome_shown = False
+                
 
                 st.rerun()
 
