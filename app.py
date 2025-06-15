@@ -3,6 +3,10 @@ import streamlit as st
 from utils.auth import authenticate_user
 from components.admin_upload import admin_upload_page
 from components.student_chat import student_chat_page
+from components.dashboard import student_dashboard_page  # ⬅️ Import the function at top
+from components.practice_questions_page import practice_questions_page
+
+
 from utils.database import get_chat_history
 
 
@@ -19,6 +23,9 @@ if 'chat_id' not in st.session_state:
     st.session_state.chat_id = None
 else:
     pass    
+
+if 'page_mode' not in st.session_state:
+    st.session_state.page_mode = "chat"  # default mode
 
 
 
@@ -86,35 +93,42 @@ else:
                 st.session_state.chat_id = None
                 st.session_state.messages=[]
                 st.session_state.welcome_shown = False
-                
-
+                st.session_state.page_mode = "chat"
                 st.rerun()
 
 
+            if st.button("📊 My Dashboard"):
+                st.session_state.page_mode = "dashboard"
+                st.session_state.chat_id = None
+                st.session_state.messages = []
+                st.rerun()
 
-            from utils.database import get_user_chats
+            if st.session_state.page_mode == "chat":
 
-            st.markdown("---")
+                from utils.database import get_user_chats
 
-            st.markdown("#### 🗂️ Your Chats")
+                st.markdown("---")
 
-            chats = get_user_chats(user['id'])
+                st.markdown("#### 🗂️ Your Chats")
 
-            for chat in chats:
+                chats = get_user_chats(user['id'])
 
-                if st.button(chat['title'], key=chat['id']):
+                for chat in chats:
 
-                    st.session_state.chat_id = chat['id']
-                    st.session_state.messages = []
+                    if st.button(chat['title'], key=chat['id']):
 
-                    # 🔁 Load messages from DB for this chat
-                    history = get_chat_history(chat['id'])
-                    for msg in history:
-                        st.session_state.messages.append({"role": "user", "content": msg["question"]})
-                        st.session_state.messages.append({"role": "assistant", "content": msg["answer"]})
+                        st.session_state.chat_id = chat['id']
+                        st.session_state.messages = []
 
-                    st.rerun()
+                        # 🔁 Load messages from DB for this chat
+                        history = get_chat_history(chat['id'])
+                        for msg in history:
+                            st.session_state.messages.append({"role": "user", "content": msg["question"]})
+                            st.session_state.messages.append({"role": "assistant", "content": msg["answer"]})
 
+                        st.rerun()
+            
+            
     if user['role'] == 'admin':
         tab1, tab2 = st.tabs(["📤 Upload Documents", "📁 View Documents"])
         with tab1:
@@ -123,8 +137,12 @@ else:
             st.write("To be implemented: list and manage documents")
 
     elif user['role'] == 'student':
-        student_chat_page(user)
-
+        if st.session_state.page_mode == "dashboard":
+            student_dashboard_page()
+        elif st.session_state.page_mode == "mcq_practice":
+            practice_questions_page()
+        else:
+            student_chat_page(user)
     
 
 
