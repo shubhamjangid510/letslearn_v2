@@ -1,4 +1,5 @@
 # utils/vector_search.py
+import os
 from utils.database import get_connection
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -11,7 +12,7 @@ from pgvector.psycopg2 import register_vector
 from psycopg2 import sql
 
 load_dotenv()
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI()
 
 # def get_relevant_chunks(query, class_name, messages=None):
